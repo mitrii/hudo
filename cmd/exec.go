@@ -27,7 +27,7 @@ func init() {
 	_ = ExecCmd.MarkFlagRequired("pin")
 }
 
-func runExec(_ *cobra.Command, args []string) error {
+func runExec(cmd *cobra.Command, args []string) error {
 	command := strings.Join(args, " ")
 	pin := pinFlag
 
@@ -58,7 +58,7 @@ func runExec(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("verification failed: command mismatch")
 	}
 
-	exitCode, err := runPrivileged(command)
+	exitCode, err := runPrivileged(cmd.Context(), command)
 	if err != nil {
 		return err
 	}
