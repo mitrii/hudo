@@ -8,6 +8,8 @@ import (
 	"time"
 
 	bolt "go.etcd.io/bbolt"
+
+	"hudo/internal/filecheck"
 )
 
 // ErrNotFound is returned when no pending request matches the given HMAC.
@@ -32,6 +34,10 @@ type Store struct {
 
 // Open opens (or creates) the bbolt database at path.
 func Open(path string) (*Store, error) {
+	if err := filecheck.CheckSafe(path, 0600); err != nil {
+		return nil, err
+	}
+
 	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: 2 * time.Second})
 	if err != nil {
 		return nil, fmt.Errorf("open store: %w", err)

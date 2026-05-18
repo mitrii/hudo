@@ -42,6 +42,7 @@ func envForTest(t *testing.T, dbPath, webhookURL string) {
 	t.Setenv("HUDO_WEBHOOK_URL", webhookURL)
 	t.Setenv("HUDO_STORE_PATH", dbPath)
 	t.Setenv("HUDO_PIN_TTL_SECONDS", "300")
+	t.Setenv("HUDO_SKIP_PERM_CHECK", "1")
 }
 
 func TestRequestStoresEntry(t *testing.T) {

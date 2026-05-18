@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
+
+	"hudo/internal/filecheck"
 )
 
 // Config holds the runtime configuration for hudo.
@@ -31,6 +33,10 @@ func Load() (*Config, error) {
 	_ = v.BindEnv("webhook_url", "HUDO_WEBHOOK_URL")
 	_ = v.BindEnv("store_path", "HUDO_STORE_PATH")
 	_ = v.BindEnv("pin_ttl_seconds", "HUDO_PIN_TTL_SECONDS")
+
+	if err := filecheck.CheckSafe("/etc/hudo/config.yaml", 0600); err != nil {
+		return nil, err
+	}
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
