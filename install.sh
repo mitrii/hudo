@@ -5,7 +5,6 @@
 set -eu
 
 REPO="mitrii/hudo"
-BINARY_NAME="hudo-linux-amd64"
 INSTALL_PATH="/usr/local/bin/hudo"
 CONFIG_DIR="/etc/hudo"
 STORE_DIR="/var/lib/hudo"
@@ -29,6 +28,21 @@ need() {
 
 need curl
 need openssl
+
+# ── detect architecture ───────────────────────────────────────────────────────
+
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64)              BINARY_SUFFIX="amd64" ;;
+  aarch64 | arm64)     BINARY_SUFFIX="arm64" ;;
+  armv7l | armv7)      BINARY_SUFFIX="armv7" ;;
+  armv6l | armv6)      BINARY_SUFFIX="armv6" ;;
+  i386 | i486 | i586 | i686) BINARY_SUFFIX="386" ;;
+  *)                   die "unsupported architecture: ${ARCH}" ;;
+esac
+
+BINARY_NAME="hudo-linux-${BINARY_SUFFIX}"
+echo "Detected architecture: ${ARCH} → ${BINARY_NAME}"
 
 # ── resolve version ───────────────────────────────────────────────────────────
 
