@@ -39,12 +39,10 @@ PIN is **one-time** and expires after a configurable TTL (default 5 minutes).
 Requires root.
 
 ```sh
-# Recommended: pass webhook URL via env so the script can run non-interactively
-curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh \
-  | sudo WEBHOOK_URL="https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}" sh
+curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh | sudo sh
 ```
 
-Or clone and run manually (interactive prompt works fine when not piped):
+Or clone and run manually:
 
 ```sh
 git clone https://github.com/mitrii/hudo
@@ -58,13 +56,16 @@ The script will:
 - Generate a random `hmac_secret`
 - Write `/etc/hudo/config.yaml` (readable only by root)
 
+After installation, set your webhook URL:
+
+```sh
+sudo nano /etc/hudo/config.yaml
+```
+
 To install a specific version:
 
 ```sh
-sudo ./install.sh v1.2.0
-# or with env:
-curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh \
-  | sudo WEBHOOK_URL="..." sh -s v1.2.0
+curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh | sudo sh -s v1.2.0
 ```
 
 ## Configuration
