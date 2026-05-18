@@ -26,31 +26,32 @@ linters:
     - whitespace
     - wsl_v5
 
-linters-settings:
-  gocognit:
-    min-complexity: 15
-  gosec:
-    excludes:
-      - G204  # subprocess launched with variable — intentional (this tool IS sudo)
-  revive:
-    rules:
-      - name: exported
-      - name: var-naming
-      - name: error-return
-      - name: error-strings
-      - name: blank-imports
-      - name: context-as-argument
-      - name: dot-imports
-      - name: increment-decrement
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: unexported-return
-      - name: unused-parameter
-  wsl_v5:
-    allow-first-in-block: true
-    allow-whole-block: false
-    branch-max-lines: 2
+linters:
+  settings:
+    gocognit:
+      min-complexity: 15
+    gosec:
+      excludes:
+        - G204  # subprocess launched with variable — intentional (this tool IS sudo)
+    revive:
+      rules:
+        - name: exported
+        - name: var-naming
+        - name: error-return
+        - name: error-strings
+        - name: blank-imports
+        - name: context-as-argument
+        - name: dot-imports
+        - name: increment-decrement
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: unused-parameter
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
 
 issues:
   max-issues-per-linter: 0
