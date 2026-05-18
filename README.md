@@ -36,13 +36,15 @@ PIN is **one-time** and expires after a configurable TTL (default 5 minutes).
 
 ## Installation
 
-Requires root. Replace `OWNER` with the actual GitHub username before running.
+Requires root.
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh | sudo sh
+# Recommended: pass webhook URL via env so the script can run non-interactively
+curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh \
+  | sudo WEBHOOK_URL="https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}" sh
 ```
 
-Or clone and run manually:
+Or clone and run manually (interactive prompt works fine when not piped):
 
 ```sh
 git clone https://github.com/mitrii/hudo
@@ -50,16 +52,19 @@ sudo ./hudo/install.sh
 ```
 
 The script will:
-- Download the latest release binary from GitHub Releases
+- Auto-detect CPU architecture (`amd64`, `arm64`, `armv7`, `386`) and download the matching binary
 - Install it to `/usr/local/bin/hudo` with setuid root
 - Create `/etc/hudo/` and `/var/lib/hudo/` with `0700 root` permissions
-- Generate a random `hmac_secret` and ask for your `webhook_url`
+- Generate a random `hmac_secret`
 - Write `/etc/hudo/config.yaml` (readable only by root)
 
 To install a specific version:
 
 ```sh
 sudo ./install.sh v1.2.0
+# or with env:
+curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh \
+  | sudo WEBHOOK_URL="..." sh -s v1.2.0
 ```
 
 ## Configuration

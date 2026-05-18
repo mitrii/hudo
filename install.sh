@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 # install.sh — install hudo on Linux
-# Usage: sudo ./install.sh [version]
-#   version: tag name, e.g. v1.0.0 (default: latest release)
+# Usage: sudo ./install.sh [version] [webhook_url]
+#   version:     tag name, e.g. v1.0.0 (default: latest release)
+#   webhook_url: e.g. https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}
+#
+# When piped through curl | sudo sh, pass arguments via env:
+#   curl -fsSL https://... | sudo WEBHOOK_URL="https://..." sh
 set -eu
 
 REPO="mitrii/hudo"
@@ -90,9 +94,20 @@ if [ -f "$CONFIG_FILE" ]; then
 else
   HMAC_SECRET=$(openssl rand -hex 32)
 
-  printf "Webhook URL (e.g. https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}): "
-  read -r WEBHOOK_URL </dev/tty
-  [ -n "$WEBHOOK_URL" ] || die "webhook_url cannot be empty"
+  # Resolve webhook URL: arg $2 → env WEBHOOK_URL → interactive prompt
+  WEBHOOK_URL="${2:-${WEBHOOK_URL:-}}"
+
+  if [ -z "$WEBHOOK_URL" ]; then
+    # Interactive prompt — requires a usable terminal.
+    # When piped through curl | sudo sh, pass via env instead:
+    #   curl -fsSL https://... | sudo WEBHOOK_URL="https://..." sh
+    if [ -t 0 ] || { TTY_FD=$(command -v /dev/tty 2>/dev/null) && [ -c /dev/tty ]; }; then
+      printf "Webhook URL (e.g. https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}): "
+      read -r WEBHOOK_URL </dev/tty || true
+    fi
+  fi
+
+  [ -n "$WEBHOOK_URL" ] || die "webhook_url is required — pass it as: sudo WEBHOOK_URL=\"<url>\" sh install.sh"
 
   cat > "$CONFIG_FILE" <<EOF
 hmac_secret: "${HMAC_SECRET}"
