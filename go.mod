@@ -1,4 +1,4 @@
-module remote-sudo
+module hudo
 
 go 1.26
 

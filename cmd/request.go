@@ -1,4 +1,4 @@
-// Package cmd implements the remote-sudo subcommands.
+// Package cmd implements the hudo subcommands.
 package cmd
 
 import (
@@ -12,9 +12,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"remote-sudo/internal/config"
-	"remote-sudo/internal/notify"
-	"remote-sudo/internal/store"
+	"hudo/internal/config"
+	"hudo/internal/notify"
+	"hudo/internal/store"
 )
 
 // RequestCmd generates a PIN for the given command and sends it via webhook.
@@ -93,7 +93,7 @@ func computeHMAC(secret, command, pin string) string {
 
 func formatMessage(command, mac, pin string, ttl int) string {
 	return fmt.Sprintf(
-		"remote-sudo request\n\nCommand: %s\nHMAC:    %s\nPIN:     %s\n\nExpires in %ds",
+		"hudo request\n\nCommand: %s\nHMAC:    %s\nPIN:     %s\n\nExpires in %ds",
 		command, mac, pin, ttl,
 	)
 }

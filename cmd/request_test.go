@@ -111,7 +111,7 @@ func TestFormatMessage(t *testing.T) {
 		"deadbeef",
 		"123456",
 		"300s",
-		"remote-sudo request",
+		"hudo request",
 	}
 
 	for _, want := range checks {
@@ -129,8 +129,8 @@ func TestFormatMessageStructure(t *testing.T) {
 		t.Errorf("expected at least 5 lines, got %d:\n%s", len(lines), msg)
 	}
 
-	if !strings.HasPrefix(lines[0], "remote-sudo") {
-		t.Errorf("first line should start with 'remote-sudo', got %q", lines[0])
+	if !strings.HasPrefix(lines[0], "hudo") {
+		t.Errorf("first line should start with 'hudo', got %q", lines[0])
 	}
 }
 

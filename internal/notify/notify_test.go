@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"remote-sudo/internal/notify"
+	"hudo/internal/notify"
 )
 
 func TestSendGETWithPlaceholder(t *testing.T) {

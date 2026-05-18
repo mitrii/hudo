@@ -2,11 +2,11 @@
 
 ## Project purpose
 
-`remote-sudo` is a Go CLI tool that acts as a `sudo` replacement for autonomous agent programs running on Linux. It handles privilege escalation via human-in-the-loop PIN approval sent through a configurable webhook (e.g. Telegram Bot API).
+`hudo` is a Go CLI tool that acts as a `sudo` replacement for autonomous agent programs running on Linux. It handles privilege escalation via human-in-the-loop PIN approval sent through a configurable webhook (e.g. Telegram Bot API).
 
 ## Module
 
-- Module: `remote-sudo`
+- Module: `hudo`
 - Go version: 1.26
 - Target platform: **Linux only** — privilege escalation code (`syscall.Setuid/Setgid`) is in `cmd/exec_linux.go`. Non-Linux stub is in `cmd/exec_other.go` so `go build ./...` works on macOS.
 
@@ -31,18 +31,19 @@ cmd/
   exec_linux.go                # runPrivileged(): Setgid(0)+Setuid(0), clean env, exec
   exec_other.go                # stub for non-Linux
 internal/
-  config/config.go             # load /etc/remote-sudo/config.yaml + REMOTE_SUDO_* env
+  config/config.go             # load /etc/hudo/config.yaml + HUDO_* env
   store/store.go               # bbolt: Save / Consume (atomic get+delete) / Purge
   notify/notify.go             # HTTP POST or GET with {text} placeholder
 config.yaml.example
-.github/workflows/ci.yml       # CI: vet → golangci-lint → test → build linux/amd64
+.github/workflows/ci.yml       # CI: vet → golangci-lint → test → build; release on v* tags
+install.sh                     # install from GitHub Releases (requires root)
 ```
 
 ### Protocol
 
-1. Agent calls `remote-sudo request <cmd>` → PIN generated, `HMAC-SHA256(secret, cmd+pin)` computed, stored in bbolt keyed by HMAC, webhook fired. Prints `OK` on success.
+1. Agent calls `hudo request <cmd>` → PIN generated, `HMAC-SHA256(secret, cmd+pin)` computed, stored in bbolt keyed by HMAC, webhook fired. Prints `OK` on success.
 2. Human sees notification (Telegram etc.), reads PIN.
-3. Agent calls `remote-sudo exec <cmd> --pin <PIN>` → HMAC recomputed, store entry consumed atomically, command run as root, stdout/stderr passed through, exit code propagated.
+3. Agent calls `hudo exec <cmd> --pin <PIN>` → HMAC recomputed, store entry consumed atomically, command run as root, stdout/stderr passed through, exit code propagated.
 
 ### HMAC
 
@@ -50,12 +51,12 @@ config.yaml.example
 
 ## Config
 
-File: `/etc/remote-sudo/config.yaml`, owner `root:root`, permissions `0600`.
+File: `/etc/hudo/config.yaml`, owner `root:root`, permissions `0600`.
 
 ```yaml
-hmac_secret: "..."          # or REMOTE_SUDO_HMAC_SECRET env
-webhook_url: "..."          # or REMOTE_SUDO_WEBHOOK_URL env
-store_path: "/var/lib/remote-sudo/pending.db"
+hmac_secret: "..."          # or HUDO_HMAC_SECRET env
+webhook_url: "..."          # or HUDO_WEBHOOK_URL env
+store_path: "/var/lib/hudo/pending.db"
 pin_ttl_seconds: 300
 ```
 
@@ -67,15 +68,15 @@ Without placeholder → POST `application/x-www-form-urlencoded`.
 ## Installation (Linux)
 
 ```sh
-go build -o remote-sudo .
-sudo chown root:root remote-sudo
-sudo chmod 4755 remote-sudo           # setuid root
-sudo mv remote-sudo /usr/local/bin/
-sudo mkdir -p /etc/remote-sudo /var/lib/remote-sudo
-sudo chmod 700 /etc/remote-sudo /var/lib/remote-sudo
-sudo cp config.yaml.example /etc/remote-sudo/config.yaml
-sudo chmod 600 /etc/remote-sudo/config.yaml
-# edit /etc/remote-sudo/config.yaml: set hmac_secret and webhook_url
+go build -o hudo .
+sudo chown root:root hudo
+sudo chmod 4755 hudo           # setuid root
+sudo mv hudo /usr/local/bin/
+sudo mkdir -p /etc/hudo /var/lib/hudo
+sudo chmod 700 /etc/hudo /var/lib/hudo
+sudo cp config.yaml.example /etc/hudo/config.yaml
+sudo chmod 600 /etc/hudo/config.yaml
+# edit /etc/hudo/config.yaml: set hmac_secret and webhook_url
 ```
 
 ## Security notes

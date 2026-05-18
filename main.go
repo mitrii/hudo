@@ -1,4 +1,4 @@
-// Package main is the entrypoint for remote-sudo.
+// Package main is the entrypoint for hudo.
 package main
 
 import (
@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"remote-sudo/cmd"
+	"hudo/cmd"
 )
 
 func main() {
 	root := &cobra.Command{
-		Use:   "remote-sudo",
+		Use:   "hudo",
 		Short: "Privilege escalation for autonomous agents",
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd: true,

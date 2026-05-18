@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"remote-sudo/internal/store"
+	"hudo/internal/store"
 )
 
 func openTemp(t *testing.T) *store.Store {

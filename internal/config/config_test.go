@@ -3,12 +3,12 @@ package config_test
 import (
 	"testing"
 
-	"remote-sudo/internal/config"
+	"hudo/internal/config"
 )
 
 func TestLoadFromEnv(t *testing.T) {
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "testsecret")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", "https://example.com/hook")
+	t.Setenv("HUDO_HMAC_SECRET", "testsecret")
+	t.Setenv("HUDO_WEBHOOK_URL", "https://example.com/hook")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -23,7 +23,7 @@ func TestLoadFromEnv(t *testing.T) {
 		t.Errorf("WebhookURL: got %q", cfg.WebhookURL)
 	}
 
-	if cfg.StorePath != "/var/lib/remote-sudo/pending.db" {
+	if cfg.StorePath != "/var/lib/hudo/pending.db" {
 		t.Errorf("StorePath default: got %q", cfg.StorePath)
 	}
 
@@ -33,8 +33,8 @@ func TestLoadFromEnv(t *testing.T) {
 }
 
 func TestLoadMissingSecret(t *testing.T) {
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", "https://example.com/hook")
+	t.Setenv("HUDO_HMAC_SECRET", "")
+	t.Setenv("HUDO_WEBHOOK_URL", "https://example.com/hook")
 
 	_, err := config.Load()
 	if err == nil {
@@ -43,8 +43,8 @@ func TestLoadMissingSecret(t *testing.T) {
 }
 
 func TestLoadMissingWebhook(t *testing.T) {
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "secret")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", "")
+	t.Setenv("HUDO_HMAC_SECRET", "secret")
+	t.Setenv("HUDO_WEBHOOK_URL", "")
 
 	_, err := config.Load()
 	if err == nil {
@@ -53,9 +53,9 @@ func TestLoadMissingWebhook(t *testing.T) {
 }
 
 func TestLoadEnvOverridesTTL(t *testing.T) {
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "s")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", "https://x.com")
-	t.Setenv("REMOTE_SUDO_PIN_TTL_SECONDS", "60")
+	t.Setenv("HUDO_HMAC_SECRET", "s")
+	t.Setenv("HUDO_WEBHOOK_URL", "https://x.com")
+	t.Setenv("HUDO_PIN_TTL_SECONDS", "60")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -68,9 +68,9 @@ func TestLoadEnvOverridesTTL(t *testing.T) {
 }
 
 func TestLoadEnvOverridesStorePath(t *testing.T) {
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "s")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", "https://x.com")
-	t.Setenv("REMOTE_SUDO_STORE_PATH", "/tmp/test.db")
+	t.Setenv("HUDO_HMAC_SECRET", "s")
+	t.Setenv("HUDO_WEBHOOK_URL", "https://x.com")
+	t.Setenv("HUDO_STORE_PATH", "/tmp/test.db")
 
 	cfg, err := config.Load()
 	if err != nil {

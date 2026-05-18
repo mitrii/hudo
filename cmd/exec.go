@@ -1,4 +1,4 @@
-// Package cmd implements the remote-sudo subcommands.
+// Package cmd implements the hudo subcommands.
 package cmd
 
 import (
@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"remote-sudo/internal/config"
-	"remote-sudo/internal/store"
+	"hudo/internal/config"
+	"hudo/internal/store"
 )
 
 var pinFlag string

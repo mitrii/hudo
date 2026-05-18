@@ -1,9 +1,9 @@
-# /etc/remote-sudo/config.yaml
+# /etc/hudo/config.yaml
 # Permissions: root:root 0600
 
 # HMAC secret used to sign and verify (command + pin) pairs.
 # Generate with: openssl rand -hex 32
-# Can also be set via environment variable: REMOTE_SUDO_HMAC_SECRET
+# Can also be set via environment variable: HUDO_HMAC_SECRET
 hmac_secret: "replace-with-strong-random-secret"
 
 # Webhook URL for sending PIN notifications.
@@ -11,13 +11,13 @@ hmac_secret: "replace-with-strong-random-secret"
 # and a GET request is made — compatible with Telegram Bot API, e.g.:
 #   https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text={text}
 # Otherwise a POST with Content-Type application/x-www-form-urlencoded is sent.
-# Can also be set via environment variable: REMOTE_SUDO_WEBHOOK_URL
+# Can also be set via environment variable: HUDO_WEBHOOK_URL
 webhook_url: "https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text={text}"
 
 # Path to the bbolt database file storing pending PIN requests.
 # Directory must be owned by root with permissions 0700.
-# Default: /var/lib/remote-sudo/pending.db
-store_path: "/var/lib/remote-sudo/pending.db"
+# Default: /var/lib/hudo/pending.db
+store_path: "/var/lib/hudo/pending.db"
 
 # How long (in seconds) a PIN is valid after the request is created.
 # Default: 300

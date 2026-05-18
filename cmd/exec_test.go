@@ -10,15 +10,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"remote-sudo/internal/config"
-	"remote-sudo/internal/store"
+	"hudo/internal/config"
+	"hudo/internal/store"
 )
 
 // newRoot builds a fresh cobra root with new instances of the commands.
 // Cobra commands are stateful (flag values persist between Execute calls),
 // so each test must build a fresh root.
 func newRoot() *cobra.Command {
-	root := &cobra.Command{Use: "remote-sudo", SilenceUsage: true, SilenceErrors: true}
+	root := &cobra.Command{Use: "hudo", SilenceUsage: true, SilenceErrors: true}
 
 	reqCmd := *RequestCmd
 	root.AddCommand(&reqCmd)
@@ -38,10 +38,10 @@ func newRoot() *cobra.Command {
 
 func envForTest(t *testing.T, dbPath, webhookURL string) {
 	t.Helper()
-	t.Setenv("REMOTE_SUDO_HMAC_SECRET", "integration-test-secret")
-	t.Setenv("REMOTE_SUDO_WEBHOOK_URL", webhookURL)
-	t.Setenv("REMOTE_SUDO_STORE_PATH", dbPath)
-	t.Setenv("REMOTE_SUDO_PIN_TTL_SECONDS", "300")
+	t.Setenv("HUDO_HMAC_SECRET", "integration-test-secret")
+	t.Setenv("HUDO_WEBHOOK_URL", webhookURL)
+	t.Setenv("HUDO_STORE_PATH", dbPath)
+	t.Setenv("HUDO_PIN_TTL_SECONDS", "300")
 }
 
 func TestRequestStoresEntry(t *testing.T) {
