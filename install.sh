@@ -91,7 +91,7 @@ else
   HMAC_SECRET=$(openssl rand -hex 32)
 
   printf "Webhook URL (e.g. https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text={text}): "
-  read -r WEBHOOK_URL
+  read -r WEBHOOK_URL </dev/tty
   [ -n "$WEBHOOK_URL" ] || die "webhook_url cannot be empty"
 
   cat > "$CONFIG_FILE" <<EOF
