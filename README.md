@@ -39,7 +39,7 @@ PIN is **one-time** and expires after a configurable TTL (default 5 minutes).
 Requires root. Replace `OWNER` with the actual GitHub username before running.
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/main/install.sh | sudo sh
+curl -fsSL https://raw.githubusercontent.com/mitrii/hudo/master/install.sh | sudo sh
 ```
 
 Or clone and run manually:
