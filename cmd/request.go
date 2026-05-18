@@ -91,9 +91,80 @@ func computeHMAC(secret, command, pin string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+func formatTTL(seconds int) string {
+	d := seconds / 86400
+	seconds %= 86400
+	h := seconds / 3600
+	seconds %= 3600
+	m := seconds / 60
+	s := seconds % 60
+
+	parts := make([]string, 0, 4)
+
+	if d > 0 {
+		parts = append(parts, fmt.Sprintf("%d day", d))
+		if d != 1 {
+			parts[len(parts)-1] += "s"
+		}
+	}
+
+	if h > 0 {
+		parts = append(parts, fmt.Sprintf("%d hour", h))
+		if h != 1 {
+			parts[len(parts)-1] += "s"
+		}
+	}
+
+	if m > 0 {
+		parts = append(parts, fmt.Sprintf("%d minute", m))
+		if m != 1 {
+			parts[len(parts)-1] += "s"
+		}
+	}
+
+	if s > 0 || len(parts) == 0 {
+		parts = append(parts, fmt.Sprintf("%d second", s))
+		if s != 1 {
+			parts[len(parts)-1] += "s"
+		}
+	}
+
+	return strings.Join(parts, " ")
+}
+
+// escapeMD escapes Telegram MarkdownV2 special characters in plain text.
+func escapeMD(s string) string {
+	replacer := strings.NewReplacer(
+		`\`, `\\`,
+		`_`, `\_`,
+		`*`, `\*`,
+		`[`, `\[`,
+		`]`, `\]`,
+		`(`, `\(`,
+		`)`, `\)`,
+		`~`, `\~`,
+		"`", "\\`",
+		`>`, `\>`,
+		`#`, `\#`,
+		`+`, `\+`,
+		`-`, `\-`,
+		`=`, `\=`,
+		`|`, `\|`,
+		`{`, `\{`,
+		`}`, `\}`,
+		`.`, `\.`,
+		`!`, `\!`,
+	)
+
+	return replacer.Replace(s)
+}
+
 func formatMessage(command, mac, pin string, ttl int) string {
 	return fmt.Sprintf(
-		"hudo request\n\nCommand: %s\nHMAC:    %s\nPIN:     %s\n\nExpires in %ds",
-		command, mac, pin, ttl,
+		"hudo request\n\n`%s` \\(expires in %s\\)\n\n```\n%s\n```\n\n||hmac: %s||",
+		pin,
+		escapeMD(formatTTL(ttl)),
+		command,
+		mac,
 	)
 }

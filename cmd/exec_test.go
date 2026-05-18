@@ -105,11 +105,11 @@ func TestRequestSendsWebhook(t *testing.T) {
 		t.Errorf("webhook body missing command, got: %q", gotBody)
 	}
 
-	if !strings.Contains(gotBody, "HMAC:") {
+	if !strings.Contains(gotBody, "||hmac:") {
 		t.Errorf("webhook body missing HMAC, got: %q", gotBody)
 	}
 
-	if !strings.Contains(gotBody, "PIN:") {
+	if !strings.Contains(gotBody, "`") {
 		t.Errorf("webhook body missing PIN, got: %q", gotBody)
 	}
 }

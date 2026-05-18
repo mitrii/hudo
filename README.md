@@ -91,7 +91,7 @@ All fields can be overridden with environment variables:
 ### Telegram webhook URL
 
 ```
-https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text={text}
+https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&parse_mode=MarkdownV2&text={text}
 ```
 
 The `{text}` placeholder is replaced with the URL-encoded notification message. Any webhook that accepts a GET request with the message in the URL works the same way.

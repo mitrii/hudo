@@ -107,10 +107,10 @@ func TestFormatMessage(t *testing.T) {
 	msg := formatMessage("rm -rf /tmp", "deadbeef", "123456", 300)
 
 	checks := []string{
-		"rm -rf /tmp",
-		"deadbeef",
-		"123456",
-		"300s",
+		"`123456`",   // PIN in monospace
+		"rm -rf /tmp", // command in code block
+		"||hmac: deadbeef||", // HMAC in spoiler
+		"5 minutes", // TTL formatted
 		"hudo request",
 	}
 
@@ -131,6 +131,50 @@ func TestFormatMessageStructure(t *testing.T) {
 
 	if !strings.HasPrefix(lines[0], "hudo") {
 		t.Errorf("first line should start with 'hudo', got %q", lines[0])
+	}
+}
+
+func TestFormatTTL(t *testing.T) {
+	cases := []struct {
+		seconds int
+		want    string
+	}{
+		{0, "0 seconds"},
+		{1, "1 second"},
+		{59, "59 seconds"},
+		{60, "1 minute"},
+		{61, "1 minute 1 second"},
+		{120, "2 minutes"},
+		{300, "5 minutes"},
+		{3600, "1 hour"},
+		{3661, "1 hour 1 minute 1 second"},
+		{86400, "1 day"},
+		{86461, "1 day 1 minute 1 second"},
+		{90061, "1 day 1 hour 1 minute 1 second"},
+	}
+
+	for _, c := range cases {
+		got := formatTTL(c.seconds)
+		if got != c.want {
+			t.Errorf("formatTTL(%d) = %q, want %q", c.seconds, got, c.want)
+		}
+	}
+}
+
+func TestEscapeMD(t *testing.T) {
+	cases := []struct{ input, want string }{
+		{"hello", "hello"},
+		{"hello.world", `hello\.world`},
+		{"a-b", `a\-b`},
+		{"(test)", `\(test\)`},
+		{"a_b*c", `a\_b\*c`},
+	}
+
+	for _, c := range cases {
+		got := escapeMD(c.input)
+		if got != c.want {
+			t.Errorf("escapeMD(%q) = %q, want %q", c.input, got, c.want)
+		}
 	}
 }
 
