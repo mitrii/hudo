@@ -14,7 +14,10 @@ const longHelp = `Usage:
   hudo request <command>              request PIN to run command as root (alias: r)
   hudo exec <command> --pin <PIN>     execute command after PIN approval (alias: e)
 
-Prints 8-char request ID on stdout. Use it to match the PIN notification.
+Workflow:
+  1. hudo r "systemctl restart nginx"   → prints request ID, sends PIN to webhook
+  2. human receives PIN via notification
+  3. hudo e "systemctl restart nginx" --pin <PIN>   → runs as root
 
 Config: /etc/hudo/config.yaml`
 
