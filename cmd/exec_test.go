@@ -278,3 +278,86 @@ func TestExecMissingPINFlag(t *testing.T) {
 		t.Error("expected error when --pin flag is missing")
 	}
 }
+
+func TestRequestPrintsShortID(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	dbPath := filepath.Join(t.TempDir(), "test.db")
+	envForTest(t, dbPath, srv.URL)
+
+	var buf strings.Builder
+
+	root := newRoot()
+	root.SetOut(&buf)
+	root.SetArgs([]string{"request", "echo hello"})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("request: %v", err)
+	}
+
+	out := strings.TrimSpace(buf.String())
+	if len(out) != 8 {
+		t.Errorf("expected 8-char short ID on stdout, got %q (len=%d)", out, len(out))
+	}
+
+	for _, ch := range out {
+		if (ch < '0' || ch > '9') && (ch < 'a' || ch > 'f') {
+			t.Errorf("short ID %q contains non-hex character %q", out, ch)
+		}
+	}
+}
+
+func TestRequestAliasR(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	dbPath := filepath.Join(t.TempDir(), "test.db")
+	envForTest(t, dbPath, srv.URL)
+
+	root := newRoot()
+	root.SetArgs([]string{"r", "echo alias"})
+
+	if err := root.Execute(); err != nil {
+		t.Errorf("alias 'r' failed: %v", err)
+	}
+}
+
+func TestExecAliasE(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "test.db")
+	envForTest(t, dbPath, "http://unused")
+
+	pin := "123456"
+	command := "echo alias-e"
+	mac := computeHMAC("integration-test-secret", command, pin)
+
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+
+	err = s.Save(mac, store.Entry{
+		Command:   command,
+		PIN:       pin,
+		ExpiresAt: time.Now().Add(time.Minute),
+	})
+	if err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	_ = s.Close()
+
+	pinFlag = ""
+
+	root := newRoot()
+	root.SetArgs([]string{"e", command, "--pin", pin})
+
+	err = root.Execute()
+	if err != nil && strings.Contains(err.Error(), "verification failed") {
+		t.Errorf("alias 'e' verification failed: %v", err)
+	}
+}

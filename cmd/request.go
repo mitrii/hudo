@@ -19,13 +19,14 @@ import (
 
 // RequestCmd generates a PIN for the given command and sends it via webhook.
 var RequestCmd = &cobra.Command{
-	Use:   "request <command>",
-	Short: "Request privileged execution of a command",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runRequest,
+	Use:     "request <command>",
+	Aliases: []string{"r"},
+	Short:   "Request privileged execution of a command",
+	Args:    cobra.MinimumNArgs(1),
+	RunE:    runRequest,
 }
 
-func runRequest(_ *cobra.Command, args []string) error {
+func runRequest(cmd *cobra.Command, args []string) error {
 	command := strings.Join(args, " ")
 
 	cfg, err := config.Load()
@@ -68,9 +69,9 @@ func runRequest(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("notify: %w", err)
 	}
 
-	fmt.Println("OK")
+	_, err = fmt.Fprintln(cmd.OutOrStdout(), shortID(mac))
 
-	return nil
+	return err
 }
 
 func generatePIN() (string, error) {
@@ -159,10 +160,19 @@ func escapeMD(s string) string {
 	return replacer.Replace(s)
 }
 
+func shortID(mac string) string {
+	if len(mac) < 8 {
+		return mac
+	}
+
+	return mac[:8]
+}
+
 func formatMessage(command, mac, pin string, ttl int) string {
 	return fmt.Sprintf(
-		"hudo request\n\n`%s` \\(expires in %s\\)\n\n```\n%s\n```\n\n||hmac: %s||",
+		"hudo request\n\n`%s · %s` \\(expires in %s\\)\n\n```\n%s\n```\n\n||hmac: %s||",
 		pin,
+		shortID(mac),
 		escapeMD(formatTTL(ttl)),
 		command,
 		mac,

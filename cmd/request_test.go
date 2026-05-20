@@ -104,13 +104,13 @@ func TestComputeHMACFormat(t *testing.T) {
 }
 
 func TestFormatMessage(t *testing.T) {
-	msg := formatMessage("rm -rf /tmp", "deadbeef", "123456", 300)
+	msg := formatMessage("rm -rf /tmp", "deadbeef11223344", "123456", 300)
 
 	checks := []string{
-		"`123456`",   // PIN in monospace
-		"rm -rf /tmp", // command in code block
-		"||hmac: deadbeef||", // HMAC in spoiler
-		"5 minutes", // TTL formatted
+		"`123456 · deadbeef`", // PIN + short ID in monospace
+		"rm -rf /tmp",         // command in code block
+		"||hmac: deadbeef11223344||", // full HMAC in spoiler
+		"5 minutes",           // TTL formatted
 		"hudo request",
 	}
 

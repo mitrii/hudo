@@ -16,10 +16,11 @@ var pinFlag string
 
 // ExecCmd verifies the PIN and executes the requested command as root.
 var ExecCmd = &cobra.Command{
-	Use:   "exec <command>",
-	Short: "Execute a previously requested command after PIN verification",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runExec,
+	Use:     "exec <command>",
+	Aliases: []string{"e"},
+	Short:   "Execute a previously requested command after PIN verification",
+	Args:    cobra.MinimumNArgs(1),
+	RunE:    runExec,
 }
 
 func init() {
