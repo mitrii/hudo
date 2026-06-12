@@ -46,24 +46,37 @@ func runRequest(cmd *cobra.Command, args []string) error {
 	// Purge stale entries on every request.
 	_ = s.Purge()
 
-	pin, err := generatePIN()
-	if err != nil {
-		return fmt.Errorf("generate pin: %w", err)
+	var (
+		pin string
+		mac string
+		ttl int
+	)
+
+	if key, entry, err := s.FindPending(command); err == nil {
+		pin = entry.PIN
+		mac = key
+		ttl = int(time.Until(entry.ExpiresAt).Seconds())
+	} else {
+		pin, err = generatePIN()
+		if err != nil {
+			return fmt.Errorf("generate pin: %w", err)
+		}
+
+		mac = computeHMAC(cfg.HMACSecret, command, pin)
+		ttl = cfg.PINTTLSeconds
+
+		entry := store.Entry{
+			Command:   command,
+			PIN:       pin,
+			ExpiresAt: time.Now().Add(time.Duration(ttl) * time.Second),
+		}
+
+		if err := s.Save(mac, entry); err != nil {
+			return fmt.Errorf("save request: %w", err)
+		}
 	}
 
-	mac := computeHMAC(cfg.HMACSecret, command, pin)
-
-	entry := store.Entry{
-		Command:   command,
-		PIN:       pin,
-		ExpiresAt: time.Now().Add(time.Duration(cfg.PINTTLSeconds) * time.Second),
-	}
-
-	if err := s.Save(mac, entry); err != nil {
-		return fmt.Errorf("save request: %w", err)
-	}
-
-	message := formatMessage(command, mac, pin, cfg.PINTTLSeconds)
+	message := formatMessage(command, mac, pin, ttl)
 
 	if err := notify.Send(cfg.WebhookURL, message); err != nil {
 		return fmt.Errorf("notify: %w", err)

@@ -137,3 +137,44 @@ func (s *Store) Purge() error {
 		return nil
 	})
 }
+
+// FindPending searches for an unexpired entry matching the given command.
+// Returns the HMAC key, the entry, or ErrNotFound if no active entry exists.
+func (s *Store) FindPending(command string) (string, *Entry, error) {
+	var (
+		foundEntry *Entry
+		foundKey   string
+	)
+
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		now := time.Now()
+
+		_ = b.ForEach(func(k, v []byte) error {
+			if foundEntry != nil {
+				return nil // already found
+			}
+
+			var e Entry
+			if err := json.Unmarshal(v, &e); err == nil {
+				if e.Command == command && now.Before(e.ExpiresAt) {
+					foundKey = string(k)
+					foundEntry = &e
+				}
+			}
+
+			return nil
+		})
+
+		return nil
+	})
+	if err != nil {
+		return "", nil, err
+	}
+
+	if foundEntry != nil {
+		return foundKey, foundEntry, nil
+	}
+
+	return "", nil, ErrNotFound
+}
